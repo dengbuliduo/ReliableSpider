@@ -1,0 +1,39 @@
+/* styles.css */
+
+/* Add styles here to customize the appearance of your app */
+
+/* Moved from inline styles in index.html */
+.img-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin-top: 40px;
+}
+
+.img-container img {
+	height: 75px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* Small helpers used by the landing page */
+.centered-padding {
+	padding: 10px; text-align: center; vertical-align: middle;
+}
+
+.large-btn {
+	margin-top: 15px; width: 300px; height:60px; padding-top:12px;
+}
+
+.large-btn-zh {
+	width: 320px;
+}
+
+.small-outline {
+	margin-top: 10px; width: 302px; height:45px; padding-top:5px;
+}
+
+textarea[readonly] {
+	white-space: pre-wrap;
+}

@@ -1,0 +1,91 @@
+{
+    "name": "fast-spider",
+    "productName": "FastSpider",
+    "version": "0.0.1",
+    "icon": "./favicon",
+    "description": "Web Crawler Without Code",
+    "main": "main.js",
+    "scripts": {
+        "start_direct": "electron .",
+        "change_version": "node change_version.js",
+        "start": "electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "keywords": [
+        "Electron",
+        "quick",
+        "start",
+        "tutorial",
+        "demo"
+    ],
+    "devDependencies": {
+        "@electron-forge/cli": "^6.0.5",
+        "@electron-forge/maker-deb": "^6.0.5",
+        "@electron-forge/maker-rpm": "^6.0.5",
+        "@electron-forge/maker-squirrel": "^6.0.5",
+        "@electron-forge/maker-zip": "^6.0.5",
+        "electron": "^27.1.3"
+    },
+    "repository": "https://github.com/dengbuliduo/FastSpider",
+    "dependencies": {
+        "bootstrap": "^5.3.0",
+        "i18next": "^21.9.2",
+        "i18next-browser-languagedetector": "^6.1.4",
+        "cors": "^2.8.5",
+        "electron-squirrel-startup": "^1.0.0",
+        "express": "^4.21.2",
+        "formidable": "^3.5.0",
+        "http": "^0.0.1-security",
+        "multer": "^2.0.0",
+        "node-abi": "^3.52.0",
+        "node-window-manager": "^2.2.4",
+        "selenium-webdriver": "^4.27.0",
+        "ws": "^8.18.0",
+        "xlsx": "^0.18.5",
+        "vue": "^3.3.0",
+        "vue-i18n": "^9.4.0",
+        "vue-router": "^4.2.0",
+        "@vitejs/plugin-vue": "^4.2.3",
+        "vite": "^4.4.0"
+    },
+    "config": {
+        "forge": {
+            "makers": [
+                {
+                    "name": "@electron-forge/maker-squirrel",
+                    "config": {
+                        "name": "ReliableSpider"
+                    }
+                },
+                {
+                    "name": "@electron-forge/maker-zip",
+                    "platforms": [
+                        "darwin"
+                    ]
+                },
+                {
+                    "name": "@electron-forge/maker-deb"
+                },
+                {
+                    "name": "@electron-forge/maker-rpm"
+                }
+            ],
+            "packagerConfig": {
+                "icon": "./favicon",
+                "appVersion": "0.0.1",
+                "name": "FastSpider",
+                "executableName": "FastSpider",
+                "appCopyright": "dengbuliduo",
+                "win32metadata": {
+                    "ProductName": "FastSpider",
+                    "FileDescription": "FastSpider --- 一个快速的不需编码的爬虫工具"
+                }
+            },
+            "publishers": []
+        }
+    }
+}
