@@ -52,6 +52,21 @@ const {
     session,
 } = require("electron");
 app.commandLine.appendSwitch("--disable-http-cache");
+
+// 开发模式下的热重载支持
+if (process.env.NODE_ENV === 'development') {
+    try {
+        require('electron-reloader')(module, {
+            debug: true,
+            watchRenderer: true,
+            ignore: ['node_modules', 'dist', 'tasks', 'execution_instances', 'Data']
+        });
+    } catch (error) {
+        console.log('Electron reloader error:', error);
+    }
+}
+
+
 const {
     Builder,
     By,
@@ -61,12 +76,12 @@ const {
     StaleElementReferenceException,
 } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
-const {ServiceBuilder} = require("selenium-webdriver/chrome");
-const {rootCertificates} = require("tls");
-const {exit} = require("process");
+const { ServiceBuilder } = require("selenium-webdriver/chrome");
+const { rootCertificates } = require("tls");
+const { exit } = require("process");
 const path = require("path");
 const fs = require("fs");
-const {exec, spawn, execFile} = require("child_process");
+const { exec, spawn, execFile } = require("child_process");
 const iconPath = path.join(__dirname, APP_CONFIG.ICON_PATH);
 const task_server = require(path.join(__dirname, "server.js"));
 const util = require("util");
@@ -82,19 +97,19 @@ let config_context = JSON.parse(
 
 if (config.debug) {
     let logPath = APP_CONFIG.LOG_FILE;
-    let logFile = fs.createWriteStream(logPath, {flags: "a"});
-    console.log = function () {
+    let logFile = fs.createWriteStream(logPath, { flags: "a" });
+    console.log = function() {
         logFile.write(util.format.apply(null, arguments) + "\n");
         process.stdout.write(util.format.apply(null, arguments) + "\n");
     };
-    console.error = function () {
+    console.error = function() {
         logFile.write(util.format.apply(null, arguments) + "\n");
         process.stderr.write(util.format.apply(null, arguments) + "\n");
     };
 }
 let allWindowSockets = [];
 let allWindowScoketNames = [];
-if(APP_CONFIG.SERVER.LOCALHOST_ALIASES.some(alias => config.webserver_address.includes(alias))) {
+if (APP_CONFIG.SERVER.LOCALHOST_ALIASES.some(alias => config.webserver_address.includes(alias))) {
     task_server.start(config.webserver_port); //start local server
 }
 let server_address = `${config.webserver_address}:${config.webserver_port}`;
@@ -104,28 +119,6 @@ let driverPath = "";
 let chromeBinaryPath = "";
 let execute_path = "";
 console.log(process.arch);
-
-// exec(`wmic os get Caption`, function (error, stdout, stderr) {
-//     if (error) {
-//         console.error(`执行的错误: ${error}`);
-//         return;
-//     }
-
-//     if (stdout.includes("Windows 7")) {
-//         console.log("Windows 7");
-//         let sys_arch = config.sys_arch;
-//         if (sys_arch === "x64") {
-//             dialog.showMessageBoxSync({
-//                 type: "error",
-//                 title: "Error",
-//                 message:
-//                     APP_CONFIG.ERROR_MESSAGES.WINDOWS_7_X64,
-//             });
-//         }
-//     } else {
-//         console.log("Not Windows 7");
-//     }
-// });
 
 if (process.platform === "win32" && process.arch === "ia32") {
     driverPath = path.join(__dirname, APP_CONFIG.PLATFORM_PATHS.WIN32_IA32.DRIVER);
@@ -158,54 +151,57 @@ let socket_flowchart = null;
 let socket_popup = null;
 let invoke_window = null;
 
-// var ffi = require('ffi-napi');
-// var libm = ffi.Library('libm', {
-//   'ceil': [ 'double', [ 'double' ] ]
-// });
-// libm.ceil(1.5); // 2
-// const {user32FindWindowEx,
-//   winspoolGetDefaultPrinter,} = require('win32-api/fun');
-// async function testt(){
-//   // 获取当前电脑当前用户默认打印机名
-//   const printerName = await winspoolGetDefaultPrinter()
-//   console.log(printerName);
-// }
-
-// testt();
-
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 600,
+        width: 1280,
         height: 800,
         webPreferences: {
             preload: path.join(__dirname, "src/js/preload.js"),
+            // 保持开发者工具可用，但恢复安全的渲染进程配置
+            devTools: true,
+            // 推荐：启用 contextIsolation 并禁用 nodeIntegration，
+            // 以便 preload.js 可以通过 contextBridge 安全地暴露 API
+            contextIsolation: true,
+            nodeIntegration: false
         },
         icon: iconPath,
         // frame: false, //取消window自带的关闭最小化等
         resizable: false, //禁止改变主窗口尺寸
     });
 
-    // and load the index.html of the app.
-    // mainWindow.loadFile('src/index.html');
-    mainWindow.loadURL(
-        server_address +
-        "/index.html?user_data_folder=" +
-        config.user_data_folder +
-        "&copyright=" + config.copyright +
-        "&lang=" + config.lang,
-        {extraHeaders: "pragma: no-cache\n"}
-    );
+    // and load the taskList.html of the app.
+    // 开发模式：从本地服务器加载
+    // 生产模式：从构建后的文件加载
+    if (config.debug) {
+        mainWindow.loadURL(
+            server_address +
+            "/taskGrid/taskList.html?user_data_folder=" +
+            config.user_data_folder +
+            "&copyright=" + config.copyright +
+            "&lang=" + config.lang, { extraHeaders: "pragma: no-cache\n" }
+        );
+    } else {
+        // 加载构建后的文件 - 修复语法错误
+        const filePath = path.join(__dirname, 'dist', 'src', 'taskGrid', 'taskList.html');
+        const queryParams = new URLSearchParams({
+            user_data_folder: config.user_data_folder,
+            copyright: config.copyright,
+            lang: config.lang
+        }).toString();
+        
+        mainWindow.loadURL(`file://${filePath}?${queryParams}`);
+    }
     // 隐藏菜单栏
-    const {Menu} = require("electron");
+    const { Menu } = require("electron");
     Menu.setApplicationMenu(null);
-    mainWindow.on("close", function (e) {
+    mainWindow.on("close", function(e) {
         if (process.platform !== "darwin") {
             app.quit();
         }
     });
     //调试模式
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 }
 
 async function findElementRecursive(driver, by, value, frames) {
@@ -371,9 +367,9 @@ async function findElementAcrossAllWindows(
     if (element == null && notifyBrowser) {
         // 如果找不到元素，切换回原来的窗口
         if (old_handle != null && handles.includes(old_handle)) {
-                await driver.switchTo().window(old_handle);
-                current_handle = old_handle;
-                console.log("Switch to handle: ", old_handle);
+            await driver.switchTo().window(old_handle);
+            current_handle = old_handle;
+            console.log("Switch to handle: ", old_handle);
         }
         notify_browser(
             "无法找到元素，请检查XPath是否正确：" + xpath,
@@ -410,7 +406,7 @@ async function beginInvoke(msg, ws) {
                     server_address;
             }
             console.log(url);
-            flowchart_window.loadURL(url, {extraHeaders: "pragma: no-cache\n"});
+            flowchart_window.loadURL(url, { extraHeaders: "pragma: no-cache\n" });
         }
         mainWindow.hide();
         // Prints the currently focused window bounds.
@@ -423,7 +419,7 @@ async function beginInvoke(msg, ws) {
                 config_context.user_data_folder == undefined ||
                 config_context.user_data_folder == ""
             ) {
-                const {windowManager} = require("node-window-manager");
+                const { windowManager } = require("node-window-manager");
                 const window = windowManager.getActiveWindow();
                 console.log(window);
                 windowManager.requestAccessibility();
@@ -475,7 +471,7 @@ async function beginInvoke(msg, ws) {
                     if (type.indexOf("Click") >= 0) {
                         await click_element(element, type);
                     } else if (type.indexOf("Move") >= 0) {
-                        await driver.actions().move({origin: element}).perform();
+                        await driver.actions().move({ origin: element }).perform();
                     }
                 }
             } else {
@@ -509,7 +505,7 @@ async function beginInvoke(msg, ws) {
                 if (xpath.includes("point(")) {
                     xpath = "//body";
                 }
-                let elementInfo = {iframe: parameters.iframe, xpath: xpath, id: -1};
+                let elementInfo = { iframe: parameters.iframe, xpath: xpath, id: -1 };
                 //用于跳转到元素位置
                 let element = await findElementAcrossAllWindows(elementInfo);
             } else if (option == 3) {
@@ -526,7 +522,7 @@ async function beginInvoke(msg, ws) {
                     }
                     xpath = parent_xpath + xpath;
                 }
-                let elementInfo = {iframe: param.iframe, xpath: xpath, id: -1};
+                let elementInfo = { iframe: param.iframe, xpath: xpath, id: -1 };
                 let element = await findElementAcrossAllWindows(elementInfo);
             } else if (option == 11) {
                 let params = parameters.params; //所有的提取数据参数
@@ -543,7 +539,7 @@ async function beginInvoke(msg, ws) {
                     }
                     xpath = parent_xpath + xpath;
                 }
-                let elementInfo = {iframe: param.iframe, xpath: xpath, id: -1};
+                let elementInfo = { iframe: param.iframe, xpath: xpath, id: -1 };
                 let element = await findElementAcrossAllWindows(elementInfo);
             } else if (option == 8) {
                 let loopType = parameters.loopType;
@@ -554,7 +550,7 @@ async function beginInvoke(msg, ws) {
                     } else if (loopType == 2) {
                         xpath = parameters.pathList.split("\n")[0].trim();
                     }
-                    let elementInfo = {iframe: parameters.iframe, xpath: xpath, id: -1};
+                    let elementInfo = { iframe: parameters.iframe, xpath: xpath, id: -1 };
                     let element = await findElementAcrossAllWindows(elementInfo);
                 } else if (loopType == 5) {
                     //JavaScript命令返回值
@@ -617,7 +613,7 @@ async function beginInvoke(msg, ws) {
                     }
                 }
             }
-            send_message_to_browser(JSON.stringify({type: "trial", message: msg}));
+            send_message_to_browser(JSON.stringify({ type: "trial", message: msg }));
         } else {
             //试运行
             try {
@@ -677,7 +673,7 @@ async function beginInvoke(msg, ws) {
                     if (xpath.includes("point(")) {
                         xpath = "//body";
                     }
-                    let elementInfo = {iframe: parameters.iframe, xpath: xpath, id: -1};
+                    let elementInfo = { iframe: parameters.iframe, xpath: xpath, id: -1 };
                     if (parameters.useLoop && !parameters.xpath.includes("point(")) {
                         let parent_node = JSON.parse(msg.message.parentNode);
                         let parent_xpath = parent_node.parameters.xpath;
@@ -701,10 +697,10 @@ async function beginInvoke(msg, ws) {
                         if (parameters.xpath.includes("point(")) {
                             await click_element(element, point);
                         } else {
-                            if (parameters.clickWay == 2){ //双击
+                            if (parameters.clickWay == 2) { //双击
                                 await click_element(element, "double");
                             } else {
-                                if (parameters.newTab == 1){
+                                if (parameters.newTab == 1) {
                                     await click_element(element, "loopClickEvery"); //新标签页打开
                                 } else {
                                     await click_element(element); //单击
@@ -726,14 +722,14 @@ async function beginInvoke(msg, ws) {
                             }
                         }
                     } else if (option == 7) {
-                        await driver.actions().move({origin: element}).perform();
+                        await driver.actions().move({ origin: element }).perform();
                     }
                     await execute_js(
                         parameters.afterJS,
                         element,
                         parameters.afterJSWaitTime
                     );
-                    send_message_to_browser(JSON.stringify({type: "cancelSelection"}));
+                    send_message_to_browser(JSON.stringify({ type: "cancelSelection" }));
                 } else if (option == 3) {
                     //提取数据
                     notify_browser(
@@ -756,7 +752,7 @@ async function beginInvoke(msg, ws) {
                             }
                             xpath = parent_xpath + xpath;
                         }
-                        let elementInfo = {iframe: param.iframe, xpath: xpath, id: -1};
+                        let elementInfo = { iframe: param.iframe, xpath: xpath, id: -1 };
                         let element = await findElementAcrossAllWindows(
                             elementInfo,
                             (notifyBrowser = false)
@@ -865,7 +861,7 @@ async function beginInvoke(msg, ws) {
                                 .split("\n")[0]
                                 .trim();
                         }
-                        let elementInfo = {iframe: parameters.iframe, xpath: parent_xpath, id: -1};
+                        let elementInfo = { iframe: parameters.iframe, xpath: parent_xpath, id: -1 };
                         let element = await findElementAcrossAllWindows(
                             elementInfo, notifyBrowser = false); //通过此函数找到元素并切换到对应的窗口
                         let result = await execute_js(code, element, waitTime);
@@ -970,12 +966,12 @@ async function beginInvoke(msg, ws) {
                         }
                         xpath = parent_xpath + xpath;
                     }
-                    let elementInfo = {iframe: param.iframe, xpath: xpath, id: -1};
+                    let elementInfo = { iframe: param.iframe, xpath: xpath, id: -1 };
                     let element = await findElementAcrossAllWindows(elementInfo);
                     if (element != null) {
                         await execute_js(param.beforeJS, element, param.beforeJSWaitTime);
                         if (param.contentType == 0) {
-                            let result = await element.getText();  // 获取元素及其子元素的文本内容
+                            let result = await element.getText(); // 获取元素及其子元素的文本内容
                             if (param.nodeType == 2) { //链接地址
                                 result = await element.getAttribute("href");
                                 notify_browser("获取的链接地址：" + result, "Link URL obtained: " + result, "success")
@@ -1003,16 +999,16 @@ async function beginInvoke(msg, ws) {
                             result = result.replace(/\n/g, "").replace(/\s+/g, " ");
                             notify_browser("获取的内容：" + result, "Content obtained: " + result, "success");
                         } else if (param.contentType == 2) {
-                            let result = await element.getAttribute('innerHTML');  // 获取元素的内部HTML内容
+                            let result = await element.getAttribute('innerHTML'); // 获取元素的内部HTML内容
                             notify_browser("获取的innerHTML：" + result, "innerHTML obtained: " + result, "success");
                         } else if (param.contentType == 3) {
-                            let result = await element.getAttribute('outerHTML');  // 获取元素及其内容的HTML表示
+                            let result = await element.getAttribute('outerHTML'); // 获取元素及其内容的HTML表示
                             notify_browser("获取的outerHTML：" + result, "outerHTML obtained: " + result, "success");
                         } else if (param.contentType == 4) {
-                            let result = await element.getCssValue('background-image');  // 获取元素的背景图片地址
+                            let result = await element.getCssValue('background-image'); // 获取元素的背景图片地址
                             notify_browser("获取的背景图片地址：" + result, "Background image URL obtained: " + result, "success");
                         } else if (param.contentType == 5) {
-                            let result = await driver.getCurrentUrl();  // 获取页面的网址
+                            let result = await driver.getCurrentUrl(); // 获取页面的网址
                             notify_browser("获取的页面网址：" + result, "Page URL obtained: " + result, "success");
                         } else if (param.contentType == 6) { //页面标题
                             let result = await driver.getTitle();
@@ -1060,7 +1056,7 @@ async function beginInvoke(msg, ws) {
                                 "Attribute value obtained: " + result,
                                 "success"
                             );
-                        } else if(param.contentType == 15) {
+                        } else if (param.contentType == 15) {
                             //元素的属性值
                             let result = param.JS;
                             notify_browser(
@@ -1135,7 +1131,7 @@ async function beginInvoke(msg, ws) {
             msg.message.id != -1
         ) {
             let child_process = spawn(execute_path, parameters);
-            child_process.stdout.on("data", function (data) {
+            child_process.stdout.on("data", function(data) {
                 console.log(data.toString());
             });
         }
@@ -1165,7 +1161,7 @@ async function beginInvoke(msg, ws) {
                 .map((cookie) => `${cookie.name}=${cookie.value}`)
                 .join("\n");
             socket_flowchart.send(
-                JSON.stringify({type: "GetCookies", message: cookiesText})
+                JSON.stringify({ type: "GetCookies", message: cookiesText })
             );
         } catch {
             console.log("Cannot get Cookies");
@@ -1192,18 +1188,18 @@ async function click_element(element, type = "click") {
         if (type == "loopClickEvery") {
             if (process.platform === "darwin") {
                 await driver
-                .actions()
-                .keyDown(Key.COMMAND)
-                .click(element)
-                .keyUp(Key.COMMAND)
-                .perform();
+                    .actions()
+                    .keyDown(Key.COMMAND)
+                    .click(element)
+                    .keyUp(Key.COMMAND)
+                    .perform();
             } else {
                 await driver
-                .actions()
-                .keyDown(Key.CONTROL)
-                .click(element)
-                .keyUp(Key.CONTROL)
-                .perform();
+                    .actions()
+                    .keyDown(Key.CONTROL)
+                    .click(element)
+                    .keyUp(Key.CONTROL)
+                    .perform();
             }
         } else if (type.includes("point(")) {
             //point(10, 20)表示点击坐标为(10, 20)的位置
@@ -1301,11 +1297,11 @@ function send_message_to_browser(message) {
 }
 
 const WebSocket = require("ws");
-const {all} = require("express/lib/application");
-const {copy} = require("selenium-webdriver/io");
-let wss = new WebSocket.Server({port: websocket_port});
-wss.on("connection", function (ws) {
-    ws.on("message", async function (message, isBinary) {
+const { all } = require("express/lib/application");
+const { copy } = require("selenium-webdriver/io");
+let wss = new WebSocket.Server({ port: websocket_port });
+wss.on("connection", function(ws) {
+    ws.on("message", async function(message, isBinary) {
         let msg = JSON.parse(message.toString());
         // console.log("\n\nGET A MESSAGE: ", msg);
         // console.log(msg, msg.type, msg.message);
@@ -1349,12 +1345,12 @@ wss.on("connection", function (ws) {
                     await driver
                         .manage()
                         .window()
-                        .setRect({width: width, height: height + 10});
+                        .setRect({ width: width, height: height + 10 });
                     // height = height - 1;
                     await driver
                         .manage()
                         .window()
-                        .setRect({width: width, height: height});
+                        .setRect({ width: width, height: height });
                 }
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 handle_pairs[msg.message.id] = current_handle;
@@ -1367,7 +1363,7 @@ wss.on("connection", function (ws) {
                     msg.message.title
                 );
                 socket_flowchart.send(
-                    JSON.stringify({type: "title", data: {title: msg.message.title}})
+                    JSON.stringify({ type: "title", data: { title: msg.message.title } })
                 );
                 allWindowSockets.push(ws);
                 allWindowScoketNames.push(msg.message.id);
@@ -1377,7 +1373,7 @@ wss.on("connection", function (ws) {
                     " at time: ",
                     new Date()
                 );
-                ws.on("close", async function (event) {
+                ws.on("close", async function(event) {
                     let index = allWindowSockets.indexOf(ws);
                     if (index > -1) {
                         allWindowSockets.splice(index, 1);
@@ -1419,7 +1415,7 @@ wss.on("connection", function (ws) {
     });
 });
 
-wss.on("error", function (err) {
+wss.on("error", function(err) {
     dialog.showErrorBox("端口占用错误 Port Occupied Error", "端口" + websocket_port + "被占用，大概率是重复打开了多个ReliableSpider程序导致，小概率是其他程序占用了此端口，请关闭所有已打开的ReliableSpider程序及其他占用此端口的程序，或重启系统后再次尝试打开软件。\nPort " + websocket_port + " is occupied, it is most likely that multiple ReliableSpider programs are opened repeatedly, or other programs occupy this port. Please close all opened ReliableSpider programs and other programs that occupy this port, or restart the system and try to open the software again.");
     //退出程序
     app.quit();
@@ -1481,7 +1477,7 @@ async function runBrowser(lang = "en", user_data_folder = "", mobile = false) {
         .build();
     await driver
         .manage()
-        .setTimeouts({implicit: 3, pageLoad: 10000, script: 10000});
+        .setTimeouts({ implicit: 3, pageLoad: 10000, script: 10000 });
     await driver.executeScript(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     );
@@ -1500,7 +1496,7 @@ async function runBrowser(lang = "en", user_data_folder = "", mobile = false) {
         await driver
             .manage()
             .window()
-            .setRect({width: width * 1.2, height: height});
+            .setRect({ width: width * 1.2, height: height });
     }
     try {
         if (mobile) {
@@ -1570,18 +1566,18 @@ function handleOpenBrowser(
             mobile.toString();
     }
     // and load the index.html of the app.
-    flowchart_window.loadURL(url, {extraHeaders: "pragma: no-cache\n"});
+    flowchart_window.loadURL(url, { extraHeaders: "pragma: no-cache\n" });
     if (process.platform != "darwin") {
         flowchart_window.hide();
     }
-    flowchart_window.on("close", function (event) {
+    flowchart_window.on("close", function(event) {
         mainWindow.show();
         driver.quit();
     });
 }
 
 function handleOpenInvoke(event, lang = "en") {
-    invoke_window = new BrowserWindow({icon: iconPath});
+    invoke_window = new BrowserWindow({ icon: iconPath });
     let url = "";
     language = lang;
     if (lang == "en") {
@@ -1597,10 +1593,10 @@ function handleOpenInvoke(event, lang = "en") {
             "&lang=zh";
     }
     // and load the index.html of the app.
-    invoke_window.loadURL(url, {extraHeaders: "pragma: no-cache\n"});
+    invoke_window.loadURL(url, { extraHeaders: "pragma: no-cache\n" });
     invoke_window.maximize();
     mainWindow.hide();
-    invoke_window.on("close", function (event) {
+    invoke_window.on("close", function(event) {
         mainWindow.show();
     });
 }
@@ -1611,11 +1607,11 @@ function handleOpenInvoke(event, lang = "en") {
 app.whenReady().then(() => {
     session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
         details.requestHeaders["Accept-Language"] = "zh";
-        callback({cancel: false, requestHeaders: details.requestHeaders});
+        callback({ cancel: false, requestHeaders: details.requestHeaders });
     });
     ipcMain.on("start-design", handleOpenBrowser);
     ipcMain.on("start-invoke", handleOpenInvoke);
-    ipcMain.on("accept-agreement", function (event, arg) {
+    ipcMain.on("accept-agreement", function(event, arg) {
         config.copyright = 1;
         fs.writeFileSync(
             path.join(task_server.getDir(), PATH_CONFIG.FILES.CONFIG),
@@ -1624,7 +1620,7 @@ app.whenReady().then(() => {
         //重新读取配置文件
         config = JSON.parse(fs.readFileSync(path.join(task_server.getDir(), PATH_CONFIG.FILES.CONFIG)));
     });
-    ipcMain.on("change-lang", function (event, arg) {
+    ipcMain.on("change-lang", function(event, arg) {
         config.lang = arg;
         fs.writeFileSync(
             path.join(task_server.getDir(), PATH_CONFIG.FILES.CONFIG),
@@ -1635,7 +1631,7 @@ app.whenReady().then(() => {
     });
     createWindow();
 
-    app.on("activate", function () {
+    app.on("activate", function() {
         // On MacOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -1702,7 +1698,7 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on("window-all-closed", function () {
+app.on("window-all-closed", function() {
     if (process.platform !== "darwin") {
         app.quit();
     }

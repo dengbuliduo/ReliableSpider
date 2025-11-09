@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-    <script src="jquery-3.4.1.min.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="vue.js"></script>
+    <script src="js/vue.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
-    <link rel="stylesheet" href="FlowChart.css"></link>
+    <link rel="stylesheet" href="css/FlowChart.css"></link>
     <title>设计流程</title>
 
 </head>
@@ -38,7 +38,7 @@
             <div class="toolbox" style="text-align:center;margin: 20px;border-radius:10px;border:navy solid;background-color:rgb(242,243,245);z-index: 9999;">
                 <div style="padding: 10px;border-radius:10px;font-size: 20px;">工具箱</div>
                 <button type="button" id="save" data-toggle="modal" data-target="#myModal" onmousedown="$('#myModal').modal('show');" class="btn btn-primary">保存任务</button>
-                 <button type="button" data=1 draggable="true" class="btn btn-outline-primary options">打开网页</button>
+                <button type="button" data=1 draggable="true" class="btn btn-outline-primary options">打开网页</button>
                 <button type="button" data=2 draggable="true" class="btn btn-outline-primary options">点击元素</button>
                 <button type="button" data=3 draggable="true" class="btn btn-outline-primary options">提取数据</button>
                 <button type="button" data=4 draggable="true" class="btn btn-outline-primary options">输入文字</button>
@@ -100,8 +100,8 @@
                         <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>使用循环内的链接</p>
                     </div>
                     <div v-if='!useLoop'>
-<!--                        <label>url:</label>-->
-<!--                        <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["url"]'></input>-->
+                        <!--                        <label>url:</label>-->
+                        <!--                        <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["url"]'></input>-->
                         <label v-if='nowNode["parameters"]["url"]!="about:blank"'>链接池（每行一个链接，有多少行链接整个任务流程就会被执行多少次）：</label>
                         <label v-else>链接（只能填写一个链接，因为是手动添加的打开网页操作）：</label>
                         <textarea spellcheck=false v-if='nowNode["parameters"]["url"]!="about:blank"' onkeydown="inputDelete(event)" class="form-control" rows="2" v-model='nowNode["parameters"]["links"]'></textarea>
@@ -131,8 +131,7 @@
                             <p style="margin-bottom: 20px;color:white"><a class="btn btn-primary" @click="getCookies">
                                 点击获取当前页面Cookie
                             </a></p>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='key=value形式，每行一个键值对' v-model='nowNode["parameters"]["cookies"]' id="pageCookies" style="font-size: 14px!important;"></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='key=value形式，每行一个键值对' v-model='nowNode["parameters"]["cookies"]' id="pageCookies" style="font-size: 14px!important;"></textarea>
                         </div>
                     </div>
                 </div>
@@ -158,8 +157,8 @@
                     <div :class="{collapse: true, 'show': nowNode['parameters']['beforeJS'].length!=0 || nowNode['parameters']['afterJS'].length!=0}" id="collapseExample">
                         <div>
                             <label>点击该元素<strong>前</strong>针对该元素执行一段JavaScript脚本： </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。' v-model='nowNode["parameters"]["beforeJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。'
+                                v-model='nowNode["parameters"]["beforeJS"]'></textarea>
                             <label>最长等待脚本执行时间（0代表无限等待）： </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["beforeJSWaitTime"]'></input>
                             <label>点击该元素<strong>后</strong>针对该元素执行一段JavaScript脚本： </label>
@@ -207,7 +206,7 @@
 
                 <div class="elements" v-if="nodeType==3">
                     <p>
-                        <button class="btn btn-primary" v-on:mousedown= 'addParam'>新增字段</button>
+                        <button class="btn btn-primary" v-on:mousedown='addParam'>新增字段</button>
                     </p>
                     <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["clear"]'></input>提取数据前清空其他操作字段已记录的值</p>
                     <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["newLine"]'></input>此提取数据操作后生成新数据行 <span style="font-size: 30px!important;" title="取消勾选则适用于不想每次提取操作都生成一个新行的场景">☺</span></p>
@@ -253,8 +252,8 @@
                         <div :class="{collapse: true, 'show': params.parameters[paraIndex]['beforeJS'].length!=0 || params.parameters[paraIndex]['afterJS'].length!=0}" id="elementAdvanced">
                             <div>
                                 <label>提取该元素数据<strong>前</strong>针对该元素执行一段JavaScript脚本： </label>
-                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                          placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。' v-model='params.parameters[paraIndex]["beforeJS"]'></textarea>
+                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。'
+                                    v-model='params.parameters[paraIndex]["beforeJS"]'></textarea>
                                 <label>最长等待脚本执行时间（0代表无限等待）： </label>
                                 <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='params.parameters[paraIndex]["beforeJSWaitTime"]'></input>
                                 <label>提取该元素数据<strong>后</strong>针对该元素执行一段JavaScript脚本： </label>
@@ -292,8 +291,7 @@
                         </div>
                         <div v-else-if='params.parameters[paraIndex]["contentType"] == 9 || params.parameters[paraIndex]["contentType"] >= 12'>
                             <label>JavaScript（也可以不针对该元素，直接写return JS代码即可）/系统命令/Python代码：</label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='如要针对该元素，则该元素用arguments[0]来表示，示例：return arguments[0].innerText + "美元"，即实现了提取该元素innerText并后面加“美元”的功能；不然直接如写return new Date().toString()即可获得当前时间戳。' v-model='params.parameters[paraIndex]["JS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='如要针对该元素，则该元素用arguments[0]来表示，示例：return arguments[0].innerText + "美元"，即实现了提取该元素innerText并后面加“美元”的功能；不然直接如写return new Date().toString()即可获得当前时间戳。' v-model='params.parameters[paraIndex]["JS"]'></textarea>
                             <label>最长等待脚本执行时间（0代表无限等待）： </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='params.parameters[paraIndex]["JSWaitTime"]'></input>
                         </div>
@@ -313,10 +311,10 @@
                             </select>
                         </div>
                         <!--                        <label>提取方式</label>-->
-<!--                        <select v-model='params.parameters[paraIndex]["extractType"]' class="form-control">-->
-<!--                            <option :value = 0>普通提取</option>-->
-<!--                            <option :value = 1>OCR提取</option>-->
-<!--                        </select>-->
+                        <!--                        <select v-model='params.parameters[paraIndex]["extractType"]' class="form-control">-->
+                        <!--                            <option :value = 0>普通提取</option>-->
+                        <!--                            <option :value = 1>OCR提取</option>-->
+                        <!--                        </select>-->
                         <label>参数类型转换为（用于Excel和数据库）：</label>
                         <select v-model='params.parameters[paraIndex]["paraType"]' class="form-control">
                             <option value = "text">文本（单个值长度预估超过1万请选择大文本）</option>
@@ -356,7 +354,8 @@
                         <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>使用循环内的文本（不勾选则每次输入的文本为下方“输入值”文本框内的文本，勾选后会使用所在“文本列表”循环内设置的文本）</p>
                         <p v-if="useLoop">
                             <label>索引值（0表示使用整个当前循环的文本，如果大于0则表示当前文本用~来分割开的文本索引取值，即如果当前循环的文本值为A~B，则索引值为1表示输入A，2表示输入B，0表示输入A~B）</label>
-                            <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input></p>
+                            <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input>
+                        </p>
                         </p>
                     </div>
 
@@ -376,8 +375,8 @@
                     <div :class="{collapse: true, 'show': nowNode['parameters']['beforeJS'].length!=0 || nowNode['parameters']['afterJS'].length!=0}" id="inputAdvanced">
                         <div>
                             <label>对该元素输入文字<strong>前</strong>针对该元素执行一段JavaScript脚本： </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。' v-model='nowNode["parameters"]["beforeJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='该元素用arguments[0]来表示，示例JS代码：arguments[0].innerText = arguments[0].innerText.replace("上海","Shanghai")即实现了将元素文字中的“上海”替换成”Shanghai“的功能，然后后续如提取数据时就会提取到替换后的值。'
+                                v-model='nowNode["parameters"]["beforeJS"]'></textarea>
                             <label>最长等待脚本执行时间（0代表无限等待）： </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["beforeJSWaitTime"]'></input>
                             <label>对该元素输入文字<strong>后</strong>针对该元素执行一段JavaScript脚本： </label>
@@ -442,7 +441,7 @@ print(emotlib.emoji()) # 使用其中的函数。
                             <option :value = 1>是（JavaScript脚本需要以return 开头）</option>
                         </select></p>
                         <p><label>参数类型转换为：</label>
-                        <select v-model='nowNode["parameters"]["paraType"]' class="form-control">
+                            <select v-model='nowNode["parameters"]["paraType"]' class="form-control">
                             <option value = "text">文本（单个值长度预估超过1万请选择大文本）</option>
                             <option value = "int">整数（位数在9位以内）</option>
                             <option value = "double">浮点数（小数）</option>
@@ -510,7 +509,8 @@ print(emotlib.emoji()) # 使用其中的函数。
                         <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>使用循环内的索引值（不勾选则输入为下方“设定值”文本框内的内容，勾选后会使用所在“文本列表”循环内设置的下拉框索引值）</p>
                         <p v-if="useLoop">
                             <label>相对循环内文本索引值（0表示使用整个当前循环的文本当做索引值，如果大于0则表示当前循环的文本用~来分割开的文本索引取值，即如果当前循环的文本值为2~3，这里填写2，则表示取文本第二项，即取值3，表示设置下拉框为第3项）</label>
-                            <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input></p>
+                            <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input>
+                        </p>
                         </p>
                     </div>
                     <label>XPath： </label>
@@ -567,7 +567,7 @@ print(emotlib.emoji()) # 使用其中的函数。
                     </div>
                     <div v-else-if='parseInt(loopType) == 2'>
                         <label>XPath列表：</label>
-                        <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" placeholder="每行一个XPath，循环里的XPath不能用@href或者text()这种写法，只能定位元素不能取属性值，即@href和text()这种写法只在提取数据操作中支持，并且不推荐，建议直接在提取数据操作中选择节点类型和采集内容类型。"  v-model='nowNode["parameters"]["pathList"]'></textarea>
+                        <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" placeholder="每行一个XPath，循环里的XPath不能用@href或者text()这种写法，只能定位元素不能取属性值，即@href和text()这种写法只在提取数据操作中支持，并且不推荐，建议直接在提取数据操作中选择节点类型和采集内容类型。" v-model='nowNode["parameters"]["pathList"]'></textarea>
                     </div>
                     <div v-else-if='parseInt(loopType) < 5'>
                         <label>内容列表（用Field["字段名"]来输入某字段/自定义操作的最新提取/返回值）：</label>
@@ -589,8 +589,8 @@ print(emotlib.emoji()) # 使用其中的函数。
                     </div>
                     <!-- 这里添加退出循环条件,找不到元素肯定退出循环 -->
                     <div v-if='parseInt(loopType) == 0'>
-                    <label>最多执行循环次数（0代表无限循环直到找不到元素或检测不到页面元素内容变化为止）：</label>
-                    <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["exitCount"]'></input>
+                        <label>最多执行循环次数（0代表无限循环直到找不到元素或检测不到页面元素内容变化为止）：</label>
+                        <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["exitCount"]'></input>
                         <label>检测页面以下元素内容不变化时退出循环（次数为0时生效，如果是多层嵌套iframe，建议写一个只有要提取的iframe页面内才有的元素的XPath，如/html/body/div[@class='LeftSide_menu']）：</label>
                         <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="text" v-model='nowNode["parameters"]["exitElement"]'></input>
                     </div>
@@ -604,8 +604,8 @@ print(emotlib.emoji()) # 使用其中的函数。
                                 <option :value = 2>操作系统级别命令</option>
                             </select>
                             <div>
-                                <textarea spellcheck=false style="margin-top: 10px" onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                          placeholder='命令返回值小于等于0或为假时则直接退出循环，不管其他条件如何。如：document.evaluate("//div[1]/a", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue == null 或 python D:/test.py，分别为JS命令（判断某元素是否存在）和系统命令返回值示例。' v-model='nowNode["parameters"]["breakCode"]'></textarea>
+                                <textarea spellcheck=false style="margin-top: 10px" onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='命令返回值小于等于0或为假时则直接退出循环，不管其他条件如何。如：document.evaluate("//div[1]/a", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue == null 或 python D:/test.py，分别为JS命令（判断某元素是否存在）和系统命令返回值示例。'
+                                    v-model='nowNode["parameters"]["breakCode"]'></textarea>
                                 <label>最长等待脚本执行时间（0代表无限等待）：</label>
                                 <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["breakCodeWaitTime"]'></input>
                             </div>
@@ -672,7 +672,7 @@ print(emotlib.emoji()) # 使用其中的函数。
                         <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["waitTime"]'></input>
                     </div>
                     <div v-else-if='TClass == 7'>
-                        <label>代码/脚本内容（<a href="https://github.com/NaiboWang/ReliableSpider/wiki/Example-of-JavaScript-instruction-for-the-current-iteration-in-a-conditional-statement" target="_blank">点击此处</a>查看更多示例）： </label>
+                        <label>代码/脚本内容（<a href="https://github.com/dengbuliduo/ReliableSpider/wiki/Example-of-JavaScript-instruction-for-the-current-iteration-in-a-conditional-statement" target="_blank">点击此处</a>查看更多示例）： </label>
                         <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" v-model='nowNode["parameters"]["code"]' placeholder="输入针对该循环项的JS命令，该循环项用arguments[0]表示，返回值大于0或为真则执行此分支内操作，否则不执行。如：return arguments[0].innerText.length >5 即判断当前循环项的文本长度是否大于5，注意要配合循环类型为元素相关（如不固定元素列表）使用。"></textarea>
                         <label>最长等待脚本执行时间（0代表无限等待）： </label>
                         <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["waitTime"]'></input>
@@ -680,8 +680,7 @@ print(emotlib.emoji()) # 使用其中的函数。
                 </div>
                 <div style="margin-top:5px">
                     <label>操作<b>执行前</b>等待以下元素出现：</label>
-                    <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" style="min-height: 30px" v-model='list.nl[index.nowNodeIndex]["parameters"]["waitElement"]'
-                              placeholder="填写要等待出现元素的XPath，不填写则不等待"></textarea>
+                    <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" style="min-height: 30px" v-model='list.nl[index.nowNodeIndex]["parameters"]["waitElement"]' placeholder="填写要等待出现元素的XPath，不填写则不等待"></textarea>
                     <label style="margin-top:5px">要等待的元素在页面第几个iframe中，0表示元素不在iframe中：</label>
                     <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model.number="list.nl[index.nowNodeIndex]['parameters']['waitElementIframeIndex']" type="number" required></input>
                     <label style="margin-top:5px">元素出现的最长等待时间（秒）：</label>
@@ -696,7 +695,7 @@ print(emotlib.emoji()) # 使用其中的函数。
                         </select>
                     </div>
                 </div>
-<!--                <button class="btn btn-outline-primary" style="margin-top: 20px;" id="confirm">确定</button>-->
+                <!--                <button class="btn btn-outline-primary" style="margin-top: 20px;" id="confirm">确定</button>-->
 
             </div>
 
@@ -736,11 +735,11 @@ print(emotlib.emoji()) # 使用其中的函数。
                         <option value=2>覆盖写入（如果文件已存在则覆盖原文件）</option>
                         <option value=3>重命名写入（如果文件已存在则重命名文件）</option>
                     </select>
-<!--                    <label>是否为Cloudflare等极端反爬网站（<a href="https://www.bilibili.com/video/BV1Ph4y1E7R9/" target="_blank">查看Cloudflare设计和执行教程</a>）：</label>-->
-<!--                    <select id="cloudflare" name="cloudflare" class="form-control">-->
-<!--                        <option value = 0>否</option>-->
-<!--                        <option value = 1>是（只支持Windows x64系统）</option>-->
-<!--                    </select>-->
+                    <!--                    <label>是否为Cloudflare等极端反爬网站（<a href="https://www.bilibili.com/video/BV1Ph4y1E7R9/" target="_blank">查看Cloudflare设计和执行教程</a>）：</label>-->
+                    <!--                    <select id="cloudflare" name="cloudflare" class="form-control">-->
+                    <!--                        <option value = 0>否</option>-->
+                    <!--                        <option value = 1>是（只支持Windows x64系统）</option>-->
+                    <!--                    </select>-->
                     <label>执行完成后是否去除重复数据（注意此功能需要等到任务结束时执行，因此执行任务中途退出将无法进行去重）：</label>
                     <select id="removeDuplicate" name="removeDuplicate" class="form-control">
                         <option value = 0>否</option>
@@ -791,9 +790,9 @@ print(emotlib.emoji()) # 使用其中的函数。
 
 </body>
 
-<script src="FlowChart.js"></script>
-<script src="global.js"></script>
-<script src="logic.js"></script>
+<script src="js/FlowChart.js"></script>
+<script src="js/global.js"></script>
+<script src="js/logic.js"></script>
 
 <script>
     var navigator = new Vue({
@@ -802,27 +801,27 @@ print(emotlib.emoji()) # 使用其中的函数。
             type: getUrlParam("type"),
             backEndAddressServiceWrapper: getUrlParam("backEndAddressServiceWrapper"),
         },
-        methods:{
-            gotoHome: function () {
+        methods: {
+            gotoHome: function() {
                 let url = "";
                 if (getUrlParam("lang") == "zh") {
-                    url = "taskList.html?lang=zh&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskList.html?lang=zh&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 } else {
-                    url = "taskList.html?lang=en&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskList.html?lang=en&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 }
                 window.location.href = url;
-            }, gotoInfo: function () {
+            },
+            gotoInfo: function() {
                 let url = "";
                 if (getUrlParam("lang") == "zh") {
-                    url = "taskInfo.html?id="+getUrlParam("id")+"&lang=zh&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskInfo.html?id=" + getUrlParam("id") + "&lang=zh&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 } else {
-                    url = "taskInfo.html?id="+getUrlParam("id")+"&lang=en&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskInfo.html?id=" + getUrlParam("id") + "&lang=en&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 }
                 window.location.href = url;
             }
         }
     });
-
 </script>
 
 </html>

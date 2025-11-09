@@ -2,232 +2,222 @@
 <html lang="en">
 
 <head>
-    <script src="jquery-3.4.1.min.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="vue.js"></script>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
-    <link rel="stylesheet" href="element-ui/index.css"></link>
-    <script src="element-ui/index.js"></script>
     <title>任务列表 | Task List</title>
-</head>
-<style>
-    th, td {
-        text-align: left;
-        vertical-align: middle !important;
-    }
-
-    @media (max-width: 500px) {
-        .tasklist {
-            margin-left: 10% !important;
-
+    <!-- 引入 Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.7.0/dist/index.css">
+    <!-- 引入 Vue.js -->
+    <script src="https://unpkg.com/vue@3.3.0/dist/vue.global.js"></script>
+    <!-- 引入 Element Plus -->
+    <script src="https://unpkg.com/element-plus@2.7.0/dist/index.full.js"></script>
+    <!-- 引入 Element Plus 图标 -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <style>
+        .app-container {
+            background: var(--el-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-    }
-
-    .search-header {
-        display: flex;
-        justify-content: flex-end; /* Right align the search box */
-        align-items: center;
-    }
-
-    .search-input {
-        /*margin-right: 8px; !* Optional: Adjust spacing between input and button *!*/
-    }
-
-    .task-links {
-        display: flex;
-        justify-content: space-between; /* Spread links evenly */
-    }
-</style>
-<body>
-<div class="row" style="margin-top: 40px;">
-    <div style="margin:0 auto; min-width: 70%;" id="taskList" class="tasklist">
-        <h4 style="text-align: center;">{{"Task List~任务列表" | lang}}</h4>
-        <h5 style="text-align: center;"
-            v-if="mobile==1">{{"View this table by direction keys on keyboard~按键盘方向键浏览此表格" | lang}}</h5>
-        <p><a v-if="type==3" href="javascript:void(0)" v-on:click="newTask"
-              class="btn btn-primary">{{"New Task~创建新任务" | lang}}</a></p>
-        <div v-if="type != 3" style="margin-bottom: 20px">
-            <div style="margin-bottom: 5px">{{"提示：下方的官方教程和答疑平台均在Github，可能出现访问速度慢的问题，请耐心等待。~" | lang}}
-            </div>
-            <a class="btn btn-primary" href="https://github.com/NaiboWang/ReliableSpider/wiki"
-               target="_blank">{{"Software Documentation~软件使用说明文档" | lang}}</a>
-            <a class="btn btn-primary" href="https://github.com/NaiboWang/ReliableSpider/issues?q=is%3Aissue"
-               target="_blank">{{"Ask questions here~官方答疑平台" | lang}}</a>
-            <a class="btn btn-primary" href="https://github.com/NaiboWang/ReliableSpider/issues/22"
-               target="_blank">{{"See how to run task by schedule~定时执行任务教程" | lang}}</a>
-            <!--                <a class="btn btn-primary" href="https://github.com/NaiboWang/ReliableSpider/wiki/Run-multiple-tasks-in-parallel" target="_blank">{{"See how to run multiple tasks in parallel~同时执行多个任务教程" | lang}}</a>-->
-        </div>
-        <el-table
-                style="width: 100%"
-                :empty-text="LANG('No Task~暂无任务')"
-                :data="list.filter(data => !search || (data.name.toLowerCase().includes(search.toLowerCase())) || (data.url.toLowerCase().includes(search.toLowerCase())) || (data.links.includes(search.toLowerCase())) || (data.desc.includes(search.toLowerCase())) || (data.id.toString().includes(search.toLowerCase())))"
-                :default-sort="{prop: 'mtime', order: 'descending'}"
-        >
-
-            <el-table-column
-                    prop="id"
-                    :label="LANG('Task ID~任务ID')"
-                    sortable
-                    width="120"
-                    align="center"
-            >
-            </el-table-column>
-            <el-table-column
-                    prop="name"
-                    :label="LANG('Task Name~任务名称')"
-                    sortable
-                    align="center"
-            >
-            </el-table-column>
-            <el-table-column
-                    prop="url"
-                    label="URL"
-                    sortable
-            >
-            </el-table-column>
-            <!--                <el-table-column-->
-            <!--                  prop="mtime"-->
-            <!--                  :label="LANG('Update Time~更新时间')"-->
-            <!--                  sortable-->
-            <!--                  :formatter="formatDate"-->
-            <!--                  width="170"-->
-            <!--                >-->
-            </el-table-column>
-            <el-table-column
-                    width="350"
-                    align="center">
-                <!-- Header template for the search input -->
-                <template slot="header" slot-scope="scope">
-                    <div class="search-header">
-                        <!-- Search input aligned to the right -->
-                        <el-input
-                                v-model="search"
-                                class="search-input"
-                                prefix-icon="el-icon-search"
-                                :placeholder="LANG('Please input keywords to search~请输入关键词搜索')">
-                        </el-input>
-                        <!--                          <el-button icon="el-icon-search"></el-button>-->
-                    </div>
-                </template>
-                <template slot-scope="scope">
-                    <!-- Use flex container to justify content space-around -->
-                    <div class="task-links">
-                        <a href="javascript:void(0)" v-on:click="browseTask(scope.$index, scope.row)">{{ "View~任务信息"
-                            | lang }}</a>
-                        <a href="javascript:void(0)" v-if="type==3" v-on:click="modifyTask(scope.$index, scope.row)">{{
-                            "Modify~修改任务" | lang }}</a>
-                        <a href="javascript:void(0)"
-                           v-on:dblclick="deleteTask(scope.$index, scope.row)">{{ "Delete (Double Click)~删除任务（双击）" | lang }}</a>
-                    </div>
-                </template>
-            </el-table-column>
-        </el-table>
-    </div>
-</div>
-</body>
-
-</html>
-<script src="global.js"></script>
-<script>
-    let app = new Vue({
-        el: '#taskList',
-        data: {
-            search: '',
-            list: [],
-            type: 3, //记录服务行为
-            mobile: getUrlParam("mobile"),
-            backEndAddressServiceWrapper: getUrlParam("backEndAddressServiceWrapper"),
-        },
-        methods: {
-            formatDate: function (row, column) {
-                //2023-01-01 00:00:00
-                let date = row[column.property];
-                // 2023-12-26T12:44:32.599Z
-                let original_time = row.mtime;
-                let year = original_time.substring(0, 4);
-                let month = original_time.substring(5, 7);
-                let day = original_time.substring(8, 10);
-                let hour = original_time.substring(11, 13);
-                let minute = original_time.substring(14, 16);
-                let second = original_time.substring(17, 19);
-                return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
-            },
-            newTask: function () {
-                window.location.href = "newTask.html?lang=" + getUrlParam("lang") + "&mobile=" + getUrlParam("mobile") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + app.$data.backEndAddressServiceWrapper;
-            },
-            LANG: function (text) {
-                if (getUrlParam("lang") == "en" || getUrlParam("lang") == "") {
-                    return text.split("~")[0];
-                } else if (getUrlParam("lang") == "zh") {
-                    return text.split("~")[1];
-                }
-            },
-            modifyTask: function (index, row) {
-                let id = row.id;
-                let url = row.links.split("\n")[0];
-                console.log(index, row)
-                let message = { //显示flowchart
-                    type: 1, //消息类型，传递链接
-                    message: {
-                        "id": id,
-                    }
-                };
-                ws.send(JSON.stringify(message));
-                window.location.href = url; //跳转链接
-            },
-            browseTask: function (index, row) {
-                let id = row.id;
-                window.location.href = "taskInfo.html?type=" + getUrlParam("type") + "&id=" + id + "&lang=" + getUrlParam("lang") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + app.$data.backEndAddressServiceWrapper; //跳转链接
-            },
-            deleteTask: function (index, row) {
-                let id = row.id;
-                // let text = "Are you sure to remove the selected task?";
-                // if (getUrlParam("lang") == "en"|| getUrlParam("lang")=="") {
-                //     text = "Are you sure to remove the selected task?";
-                // } else if (getUrlParam("lang") == "zh") {
-                //     text = "确定要删除选中的任务吗？";
-                // }
-                // if (confirm(text)) {
-                $.get(app.$data.backEndAddressServiceWrapper + "/deleteTask?id=" + id, function (res) {
-                    $.get(app.$data.backEndAddressServiceWrapper + "/queryTasks", function (re) {
-                        result = re.sort(desc);
-                        app.$data.list = result;
-                    });
-                });
-                // alert("Sorry, the task cannot be deleted since the system is a demo system for paper reviewers, please contact the author (naibowang@u.nus.edu) to remove it.")
-                // }
-            },
+        
+        .mb-12 {
+            margin-bottom: 1.5rem;
         }
-    });
-
-    let desc = function (x, y) {
-        return (x["id"] < y["id"]) ? 1 : -1
-    }
-    $.get(app.$data.backEndAddressServiceWrapper + "/queryTasks", function (re) {
-        // result = re.sort(desc);
-        app.$data.list = re;
-        if (getUrlParam("type") == "1") {
-            app.$data.type = 2;
+        
+        .mb-4 {
+            margin-bottom: 1.5rem;
         }
-    });
-    ws = new WebSocket("ws://localhost:" + getUrlParam("wsport"));
-    ws.onopen = function () {
-        // Web Socket 已连接上，使用 send() 方法发送数据
-        console.log("已连接");
-        message = {
-            type: 0, //消息类型，0代表链接操作
-            message: {
-                id: 1, //socket id
+        
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        .w-100 {
+            width: 100%;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-secondary {
+            color: var(--el-text-color-secondary);
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 768px) {
+            .el-col {
+                width: 100%;
+                margin-bottom: 1rem;
             }
-        };
-        this.send(JSON.stringify(message));
-    };
-    ws.onclose = function () {
-        // 关闭 websocket
-        console.log("连接已关闭...");
-    };
+            .app-container {
+                margin: 20px 10px;
+                padding: 0 10px;
+            }
+        }
+        /* Element Plus 优化 */
+        
+        .el-table {
+            --el-table-border-color: var(--el-border-color-lighter);
+            --el-table-header-bg-color: var(--el-bg-color-page);
+        }
+        
+        .el-button {
+            --el-button-hover-bg-color: var(--el-color-primary-light-3);
+            --el-button-hover-text-color: var(--el-color-white);
+        }
+        
+        .el-menu {
+            background: transparent;
+            border-bottom: none;
+        }
+        
+        .el-affix {
+            background: var(--el-bg-color);
+            z-index: 1000;
+            border-bottom: 1px solid var(--el-border-color-lighter);
+        }
+        /* Element UI 表格样式优化 */
+    </style>
+</head>
 
-</script>
+<body>
+    <div class="app-container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <!-- 主要内容区 -->
+        <div id="taskList" class="tasklist">
+            <!-- 顶部导航栏 -->
+            <!-- 顶部工具栏 -->
+            <el-row :gutter="16" class="mb-4" style="align-items:center">
+                <el-col :xs="24" :sm="12" :md="6">
+                    <el-tooltip content="{{ LANG('Open documentation~打开文档') }}" placement="top">
+                        <el-button type="info" class="w-100" @click.prevent="openExternal('https://github.com/dengbuliduo/ReliableSpider/wiki')" aria-label="{{ LANG('Open docs~打开文档') }}">
+                            <el-icon style="margin-right:6px">
+                                <document />
+                            </el-icon>
+                            <span>{{ LANG("Software Documentation~软件使用说明文档") }}</span>
+                        </el-button>
+                    </el-tooltip>
+                </el-col>
+                <el-col :xs="24" :sm="12" :md="6">
+                    <el-tooltip content="{{ LANG('Open issues~打开问题列表') }}" placement="top">
+                        <el-button type="info" class="w-100" @click.prevent="openExternal('https://github.com/dengbuliduo/ReliableSpider/issues?q=is%3Aissue')" aria-label="{{ LANG('Open issues~打开问题列表') }}">
+                            <el-icon style="margin-right:6px">
+                                <question-filled />
+                            </el-icon>
+                            <span>{{ LANG("Ask questions here~官方答疑平台") }}</span>
+                        </el-button>
+                    </el-tooltip>
+                </el-col>
+                <el-col :xs="24" :sm="12" :md="6">
+                    <el-tooltip content="{{ LANG('Schedule tutorial~定时执行教程') }}" placement="top">
+                        <el-button type="info" class="w-100" @click.prevent="openExternal('https://github.com/dengbuliduo/ReliableSpider/issues/22')" aria-label="{{ LANG('Schedule tutorial~定时执行教程') }}">
+                            <el-icon style="margin-right:6px">
+                                <timer />
+                            </el-icon>
+                            <span>{{ LANG("See how to run task by schedule~定时执行任务教程") }}</span>
+                        </el-button>
+                    </el-tooltip>
+                </el-col>
+                <el-col :xs="24" :sm="12" :md="6" style="text-align:right">
+                    <el-dropdown @command="changeLang" trigger="click">
+                        <el-button type="primary">
+                            <span style="margin-right:8px">{{ lang === 'zh' ? '中文' : 'English' }}</span>
+                            <el-icon class="el-icon--right">
+                                <arrow-down />
+                            </el-icon>
+                        </el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item command="zh">
+                                    <el-icon v-if="lang === 'zh'" style="margin-right:6px"><check /></el-icon>
+                                    中文
+                                </el-dropdown-item>
+                                <el-dropdown-item command="en">
+                                    <el-icon v-if="lang === 'en'" style="margin-right:6px"><check /></el-icon>
+                                    English
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                </el-col>
+            </el-row>
+
+            <div class="text-center mb-4">
+                <h2 class="mb-3">{{ LANG("Task List~任务列表") }}</h2>
+            </div>
+
+            <!-- 主要操作按钮组 -->
+            <el-row :gutter="20" class="mb-4">
+                <el-col :span="8">
+                    <el-button type="primary" @click="newTask" size="large" class="w-100">
+                        <el-icon>
+                            <plus />
+                        </el-icon>
+                        {{ LANG("New Task~创建新任务") }}
+                    </el-button>
+                </el-col>
+                <el-col :span="8">
+                    <el-button type="success" @click="startDesign(lang)" size="large" class="w-100">
+                        <el-icon>
+                            <edit />
+                        </el-icon>
+                        {{ LANG("Design/Modify Task~设计/修改任务") }}
+                    </el-button>
+                </el-col>
+                <el-col :span="8">
+                    <el-button type="warning" @click="startInvoke(lang)" size="large" class="w-100">
+                        <el-icon>
+                            <monitor />
+                        </el-icon>
+                        {{ LANG("View/Manage/Execute~查看/管理/执行") }}
+                    </el-button>
+                </el-col>
+            </el-row>
+
+            <!-- 搜索框 -->
+            <div class="mb-12">
+                <el-input v-model="search" :placeholder="LANG('Please input keywords to search~请输入关键词搜索')" class="w-100">
+                    <template #prefix>
+                        <el-icon>
+                            <search />
+                        </el-icon>
+                    </template>
+                </el-input>
+            </div>
+
+            <!-- 任务表格 -->
+            <el-row>
+                <el-col :span="24">
+                    <el-table :data="list.filter(data => {
+                    if (!search) return true;
+                    const searchLower = search.toLowerCase();
+                    return (((data.name || '').toLowerCase().includes(searchLower)) ||
+                            ((data.url || '').toLowerCase().includes(searchLower)) ||
+                            ((data.links || '').toLowerCase().includes(searchLower)) ||
+                            ((data.desc || '').toLowerCase().includes(searchLower)) ||
+                            ((data.id || '').toString().includes(searchLower)))
+                })" border stripe empty-text="LANG('No Task~暂无任务')" style="width: 100%">
+                    <el-table-column type="index" width="60" :label="LANG('序号')"></el-table-column>
+                    <el-table-column prop="id" :label="LANG('Task ID~任务ID')" width="100" sortable></el-table-column>
+                    <el-table-column prop="name" :label="LANG('Task Name~任务名称')" min-width="200" sortable show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="url" label="URL" min-width="300" sortable show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="links" :label="LANG('Links~链接')" min-width="150" sortable show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="desc" :label="LANG('Description~描述')" min-width="250" sortable show-overflow-tooltip></el-table-column>
+                    <el-table-column :label="LANG('Operations~操作')" width="200" fixed="right">
+                        <template #default="scope">
+                            <el-button type="primary" size="small" @click="browseTask(scope.row)">{{ LANG("View~查看") }}</el-button>
+                            <el-button v-if="type==3" type="success" size="small" @click="modifyTask(scope.row)">{{ LANG("Modify~修改") }}</el-button>
+                            <el-button type="danger" size="small" @click="deleteTask(scope.row)">{{ LANG("Delete~删除") }}</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                </el-col>
+            </el-row>
+        </div>
+    </div>
+    <!-- 引入 taskList.js 脚本（非模块化） -->
+    <script src="js/taskList.js"></script>
+</body>
+</html>

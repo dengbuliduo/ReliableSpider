@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-    <script src="jquery-3.4.1.min.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="vue.js"></script>
+    <script src="js/vue.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
-    <link rel="stylesheet" href="FlowChart.css"></link>
+    <link rel="stylesheet" href="css/FlowChart.css"></link>
     <title>Workflow Manager</title>
 
 </head>
@@ -38,13 +38,13 @@
             <div class="toolbox" style="text-align:center;margin: 20px;border-radius:10px;border:navy solid;background-color:rgb(242,243,245);z-index: 9999;">
                 <div style="padding: 10px;border-radius:10px;font-size: 20px;">Toolkit</div>
                 <button type="button" id="save" data-toggle="modal" data-target="#myModal" onmousedown="$('#myModal').modal('show');" class="btn btn-primary">Save Task</button>
-                 <button type="button" data=1 draggable="true" class="btn btn-outline-primary options">Open Page</button>
+                <button type="button" data=1 draggable="true" class="btn btn-outline-primary options">Open Page</button>
                 <button type="button" data=2 draggable="true" class="btn btn-outline-primary options">Click Element</button>
                 <button type="button" data=3 draggable="true" class="btn btn-outline-primary options">Collect Data</button>
                 <button type="button" data=4 draggable="true" class="btn btn-outline-primary options">Input Text</button>
-                 <button type="button" data=5 draggable="true" class="btn btn-outline-primary options" style="font-weight: bold; font-size: 14px!important;">Custom Action</button>
-                 <button type="button" data=6 draggable="true" style="font-size: 14px!important;" class="btn btn-outline-primary options">Change Option</button>
-                 <button type="button" data=7 draggable="true" class="btn btn-outline-primary options">Mouse Move</button>
+                <button type="button" data=5 draggable="true" class="btn btn-outline-primary options" style="font-weight: bold; font-size: 14px!important;">Custom Action</button>
+                <button type="button" data=6 draggable="true" style="font-size: 14px!important;" class="btn btn-outline-primary options">Change Option</button>
+                <button type="button" data=7 draggable="true" class="btn btn-outline-primary options">Mouse Move</button>
                 <button type="button" data=8 draggable="true" class="btn btn-outline-primary options" style="font-weight: bold">Loop</button>
                 <button type="button" data=9 draggable="true" class="btn btn-outline-primary options" style="font-weight: bold">If Condition</button>
                 <div>-----------------</div>
@@ -100,8 +100,8 @@
                         <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>Use link inside the Loop</p>
                     </div>
                     <div v-if='!useLoop'>
-<!--                        <label>url:</label>-->
-<!--                        <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["url"]'></input>-->
+                        <!--                        <label>url:</label>-->
+                        <!--                        <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["url"]'></input>-->
                         <label v-if='nowNode["parameters"]["url"]!="about:blank"'>Links (one link per line, the entire workflow will be executed as many times as there are lines of links):</label>
                         <label v-else>Link (Only one link can be put here)</label>
                         <textarea spellcheck=false v-if='nowNode["parameters"]["url"]!="about:blank"' onkeydown="inputDelete(event)" class="form-control" rows="2" v-model='nowNode["parameters"]["links"]'></textarea>
@@ -131,8 +131,7 @@
                             <p style="margin-bottom: 20px;color:white"><a class="btn btn-primary" @click="getCookies">
                               Click here to get cookies of current page
                             </a></p>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='key=value, one pair per line' v-model='nowNode["parameters"]["cookies"]' id="pageCookies" style="font-size: 14px!important;"></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='key=value, one pair per line' v-model='nowNode["parameters"]["cookies"]' id="pageCookies" style="font-size: 14px!important;"></textarea>
                         </div>
                     </div>
                 </div>
@@ -150,7 +149,7 @@
                         <label>The final XPath of this element when the task is running:</label>
                         <textarea v-model="getFinalXPath(nowNode['parameters']['xpath'], useLoop)" spellcheck="false" onkeydown="inputDelete(event)" class="form-control" rows="2" readonly style="background:ghostwhite"></textarea>
                     </div>
-                                        <p style="margin-top: 10px">
+                    <p style="margin-top: 10px">
                         <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                             Click here to expand/collapse advanced operations
                         </a>
@@ -158,12 +157,13 @@
                     <div :class="{collapse: true, 'show': nowNode['parameters']['beforeJS'].length!=0 || nowNode['parameters']['afterJS'].length!=0}" id="collapseExample">
                         <div>
                             <label>Execute a JavaScript script <strong>before</strong> clicking on this element:</label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.' v-model='nowNode["parameters"]["beforeJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.'
+                                v-model='nowNode["parameters"]["beforeJS"]'></textarea>
                             <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["beforeJSWaitTime"]'></input>
                             <label>Execute a JavaScript script <strong>after</strong> clicking on this element: </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.' v-model='nowNode["parameters"]["afterJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.'
+                                v-model='nowNode["parameters"]["afterJS"]'></textarea>
                             <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["afterJSWaitTime"]'></input>
                         </div>
@@ -207,10 +207,10 @@
 
                 <div class="elements" v-if="nodeType==3">
                     <p>
-                        <button class="btn btn-primary" v-on:mousedown= 'addParam'>New Field</button>
+                        <button class="btn btn-primary" v-on:mousedown='addParam'>New Field</button>
                     </p>
                     <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["clear"]'></input>Clear other field existing values before extracting</p>
-                    <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["newLine"]'></input>This operation will generate a new row of data <span style="font-size: 30px!important;" title="If unchecked, it will use the same row of data as the previous operation. If checked, it will generate a new row of data.">☺</span> </p>
+                    <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["newLine"]'></input>This operation will generate a new row of data <span style="font-size: 30px!important;" title="If unchecked, it will use the same row of data as the previous operation. If checked, it will generate a new row of data.">☺</span>                        </p>
                     <div class="toolkitcontain">
                         <table class="toolkittb2" cellspacing="0">
                             <tbody>
@@ -253,12 +253,13 @@
                         <div :class="{collapse: true, 'show': params.parameters[paraIndex]['beforeJS'].length!=0 || params.parameters[paraIndex]['afterJS'].length!=0}" id="elementAdvanced">
                             <div>
                                 <label>Execute a JavaScript script <strong>before</strong> extracting data from this element: </label>
-                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                          placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.' v-model='params.parameters[paraIndex]["beforeJS"]'></textarea>
+                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.'
+                                    v-model='params.parameters[paraIndex]["beforeJS"]'></textarea>
                                 <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                                 <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='params.parameters[paraIndex]["beforeJSWaitTime"]'></input>
                                 <label>Execute a JavaScript script <strong>after</strong> extracting data from this element: </label>
-                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.' v-model='params.parameters[paraIndex]["afterJS"]'></textarea>
+                                <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.'
+                                    v-model='params.parameters[paraIndex]["afterJS"]'></textarea>
                                 <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                                 <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='params.parameters[paraIndex]["afterJSWaitTime"]'></input>
                             </div>
@@ -292,8 +293,8 @@
                         </div>
                         <div v-else-if='params.parameters[paraIndex]["contentType"] == 9 || params.parameters[paraIndex]["contentType"] >= 12'>
                             <label>Code (Use Field["FieldName"] to input the lastest value of a field): </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='The element should be represented by arguments[0]. Here is an example: return arguments[0].innerText + "US Dollar". This code extracts the innerText of the element and appends "US Dollar"  to it.' v-model='params.parameters[paraIndex]["JS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example: return arguments[0].innerText + "US Dollar". This code extracts the innerText of the element and appends "US Dollar"  to it.'
+                                v-model='params.parameters[paraIndex]["JS"]'></textarea>
                             <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='params.parameters[paraIndex]["JSWaitTime"]'></input>
                         </div>
@@ -312,11 +313,11 @@
                                 <option :value = 1>Yes</option>
                             </select>
                         </div>
-<!--                        <label>提取方式</label>-->
-<!--                        <select v-model='params.parameters[paraIndex]["extractType"]' class="form-control">-->
-<!--                            <option :value = 0>普通提取</option>-->
-<!--                            <option :value = 1>OCR提取</option>-->
-<!--                        </select>-->
+                        <!--                        <label>提取方式</label>-->
+                        <!--                        <select v-model='params.parameters[paraIndex]["extractType"]' class="form-control">-->
+                        <!--                            <option :value = 0>普通提取</option>-->
+                        <!--                            <option :value = 1>OCR提取</option>-->
+                        <!--                        </select>-->
                         <label>Parameter type conversion (for Excel and Database):</label>
                         <select v-model='params.parameters[paraIndex]["paraType"]' class="form-control">
                             <option value = "text">Text (for single values estimated to exceed 10,000 in length, please choose Large Text)</option>
@@ -332,7 +333,7 @@
                         </select>
                         <label>Default value when cannot find this element:</label>
                         <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='params.parameters[paraIndex]["default"]'></textarea>
-                       <label style="margin-top: 15px">Wrap content to new line (set when collecting long articles and wanting to wrap):</label>
+                        <label style="margin-top: 15px">Wrap content to new line (set when collecting long articles and wanting to wrap):</label>
                         <select v-model='params.parameters[paraIndex]["splitLine"]' class="form-control">
                             <option :value="0">No</option>
                             <option :value="1">Yes</option>
@@ -353,17 +354,18 @@
                     <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["iframe"]'></input>Element is inside iframe</p>
                     <div v-if="nowNode['isInLoop']">
                         <!-- 如果在循环内且循环内是固定文本才显示此行元素 -->
-                    <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>Use text from the loop (If unchecked, the text entered each time will be the text from the "Input Value" text box below. If checked, it will use the text set within the loop.)</p>
-                    <p v-if="useLoop">
-                        <label>Index value (0 represents using the entire current loop text. If greater than 0, it represents the text index value separated by "~" within the current loop. For example, if the current loop text value is A~B, index value 1 represents inputting A, 2 represents inputting B, and 0 represents inputting A~B)</label>
-                        <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input>
-                    </p>
+                        <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>Use text from the loop (If unchecked, the text entered each time will be the text from the "Input Value" text box below. If checked,
+                            it will use the text set within the loop.)</p>
+                        <p v-if="useLoop">
+                            <label>Index value (0 represents using the entire current loop text. If greater than 0, it represents the text index value separated by "~" within the current loop. For example, if the current loop text value is A~B, index value 1 represents inputting A, 2 represents inputting B, and 0 represents inputting A~B)</label>
+                            <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input>
+                        </p>
                     </div>
 
-                <div v-if='!useLoop'>
-                    <label>Input value (Use Field["FieldName"] to input the latest extracted/returned value of a field or custom operation. Use &lt;enter&gt; or &lt;ENTER&gt; to simulate pressing the Enter key, use JS("return JS code") and eval("Python code") to replace with the return values of JavaScript and Python code:</label>
-                    <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["value"]'></textarea>
-                </div>
+                    <div v-if='!useLoop'>
+                        <label>Input value (Use Field["FieldName"] to input the latest extracted/returned value of a field or custom operation. Use &lt;enter&gt; or &lt;ENTER&gt; to simulate pressing the Enter key, use JS("return JS code") and eval("Python code") to replace with the return values of JavaScript and Python code:</label>
+                        <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model='nowNode["parameters"]["value"]'></textarea>
+                    </div>
 
                     <label>XPath: <span style="font-size: 30px!important;" title="Relative XPATH writing: start with /, e.g. the loop item XPATH is /html/body/div[1], your input is /*[@id='tab-customer'], then the final addressed xpath is: /html/body/div[1]/*[@id='tab-customer']">☺</span></label>
                     <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" v-model='nowNode["parameters"]["xpath"]'></textarea>
@@ -376,12 +378,13 @@
                     <div :class="{collapse: true, 'show': nowNode['parameters']['beforeJS'].length!=0 || nowNode['parameters']['afterJS'].length!=0}" id="inputAdvanced">
                         <div>
                             <label>Execute JavaScript script on this element <b>before</b> entering text into it: </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.' v-model='nowNode["parameters"]["beforeJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].innerText = arguments[0].innerText.replace("United States","US"). This code replaces occurrences of "United States" with "US" in the text of the element. Subsequently, when extracting data, you will obtain the replaced value.'
+                                v-model='nowNode["parameters"]["beforeJS"]'></textarea>
                             <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["beforeJSWaitTime"]'></input>
                             <label>Execute JavaScript script on this element <b>after</b> entering text into it: </label>
-                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.' v-model='nowNode["parameters"]["afterJS"]'></textarea>
+                            <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='The element should be represented by arguments[0]. Here is an example JavaScript code: arguments[0].click(). This code simulates a click on the element.'
+                                v-model='nowNode["parameters"]["afterJS"]'></textarea>
                             <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                             <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["afterJSWaitTime"]'></input>
                         </div>
@@ -442,7 +445,7 @@ Please note that this feature does not support assigning values to variables. In
                             <option :value = 1>Yes</option>
                         </select></p>
                         <p><label>Convert parameter type to:</label>
-                        <select v-model='nowNode["parameters"]["paraType"]' class="form-control">
+                            <select v-model='nowNode["parameters"]["paraType"]' class="form-control">
                             <option value = "text">Text (for single values estimated to exceed 10,000 in length, please choose Large Text)</option>
                             <option value = "int">Integer (up to 9 digits)</option>
                             <option value = "double">Floating Number (Decimal)</option>
@@ -507,7 +510,8 @@ Please note that this feature does not support assigning values to variables. In
                     <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='nowNode["parameters"]["iframe"]'></input>Element is inside iframe</p>
                     <div v-if="nowNode['isInLoop']">
                         <!-- Display this element only if inside a loop and the loop contains fixed text -->
-                        <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>Use index value from within the loop (if unchecked, the setting will be the value of the "Set Value" text box below. If checked, it will use the index value set within the loop's dropdown box.)</p>
+                        <p><input spellcheck=false onkeydown="inputDelete(event)" type="checkbox" v-model='useLoop'></input>Use index value from within the loop (if unchecked, the setting will be the value of the "Set Value" text box below. If checked, it
+                            will use the index value set within the loop's dropdown box.)</p>
                         <p v-if="useLoop">
                             <label>Relative index value of the loop value (0 represents using the entire current loop's text. If greater than 0, it represents the value of the text separated by "~" within the current loop. For example, if the current loop's text value is 2~3 and you enter 2 here, it means taking the second item of the text, which is value 3, indicating setting the dropdown box to the third item.)</label>
                             <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" type="number" v-model.number='nowNode["parameters"]["index"]'></input>
@@ -517,7 +521,7 @@ Please note that this feature does not support assigning values to variables. In
                     <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="2" v-model='nowNode["parameters"]["xpath"]'></textarea>
                     <p><button type="button" data-toggle="modal" data-target="#myModal_XPath" @click="changeXPaths(nowNode['parameters']['allXPaths'])" class="btn btn-primary" style="margin-top: 10px">Click here to view other equivalent XPath expressions</button></p>
                     <div v-if="!useLoop">
-                    <p>Option switch Mode</p>
+                        <p>Option switch Mode</p>
                         <select class="form-control" v-model='nowNode["parameters"]["optionMode"]'>
                             <option :value = 0>Switch to the next option</option>
                             <option :value = 1>Switch options by index (0 is the first option)</option>
@@ -571,7 +575,8 @@ Please note that this feature does not support assigning values to variables. In
                     </div>
                     <div v-else-if='parseInt(loopType) < 5'>
                         <label>Content List (Use Field["FieldName"] to input the lastest value of a field):</label>
-                        <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" placeholder="One text/URL per line. Each line is A text/URL, and the text is divided by ~, that is, if the value of A line is A~B, the index value can be set to 1 for A, 2 for B, and 0 for A~B in the input text operation." v-model='nowNode["parameters"]["textList"]'></textarea>
+                        <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" placeholder="One text/URL per line. Each line is A text/URL, and the text is divided by ~, that is, if the value of A line is A~B, the index value can be set to 1 for A, 2 for B, and 0 for A~B in the input text operation."
+                            v-model='nowNode["parameters"]["textList"]'></textarea>
                     </div>
                     <div v-else-if='parseInt(loopType) < 8'>
                         <label>Code (Use Field["FieldName"] to input the lastest value of a field):</label>
@@ -604,8 +609,8 @@ If the expression returns a value greater than 0 or evaluates to True, the loop 
                                 <option :value = 2>Operating system-level command</option>
                             </select>
                             <div>
-                            <textarea spellcheck=false style="margin-top: 10px" onkeydown="inputDelete(event)" class="form-control" rows="2"
-                                      placeholder='Exit the loop directly if the command return value is less than or equal to 0 or evaluates to false. Example: return document.body.scrollWidth > 1000 or python D:/test.py, which are examples of JavaScript command and system command return values.' v-model='nowNode["parameters"]["breakCode"]'></textarea>
+                                <textarea spellcheck=false style="margin-top: 10px" onkeydown="inputDelete(event)" class="form-control" rows="2" placeholder='Exit the loop directly if the command return value is less than or equal to 0 or evaluates to false. Example: return document.body.scrollWidth > 1000 or python D:/test.py, which are examples of JavaScript command and system command return values.'
+                                    v-model='nowNode["parameters"]["breakCode"]'></textarea>
                                 <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                                 <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["breakCodeWaitTime"]'></input>
                             </div>
@@ -655,7 +660,8 @@ If the expression returns a value greater than 0 or evaluates to True, the loop 
 
                     <div v-if='TClass > 0 && TClass < 5'>
                         <label>Text/Element XPath to Include: <span style="font-size: 30px!important;" title="Relative XPath syntax: starts with /, e.g., if the XPath of the loop item is /html/body/div[1], and you input /*[@id='tab-customer'], the final XPath will be: /html/body/div[1]/*[@id='tab-customer']">☺</span></label>
-                        <textarea spellcheck=false onkeydown="inputDelete(event)" required placeholder="If the current loop contains elements, input the xpath of the relative element (such as '/div[2]/div[1]/img', if written in relative path, it should be written as '/*//img', which means checking whether there exists an 'img' tag among all the descendant elements of the current loop item.)." class="form-control" rows="3" v-model='nowNode["parameters"]["value"]'></textarea>
+                        <textarea spellcheck=false onkeydown="inputDelete(event)" required placeholder="If the current loop contains elements, input the xpath of the relative element (such as '/div[2]/div[1]/img', if written in relative path, it should be written as '/*//img', which means checking whether there exists an 'img' tag among all the descendant elements of the current loop item.)."
+                            class="form-control" rows="3" v-model='nowNode["parameters"]["value"]'></textarea>
                     </div>
                     <div v-else-if='TClass > 0 && TClass < 7 || TClass == 8'>
                         <label>Code/Script Content: </label>
@@ -672,7 +678,7 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
                         <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["waitTime"]'></input>
                     </div>
                     <div v-else-if='TClass == 7'>
-                        <label>Code/Script Content (<a href="https://github.com/NaiboWang/ReliableSpider/wiki/Example-of-JavaScript-instruction-for-the-current-iteration-in-a-conditional-statement" target="_blank">Click here</a> for more examples): </label>
+                        <label>Code/Script Content (<a href="https://github.com/dengbuliduo/ReliableSpider/wiki/Example-of-JavaScript-instruction-for-the-current-iteration-in-a-conditional-statement" target="_blank">Click here</a> for more examples): </label>
                         <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" rows="3" v-model='nowNode["parameters"]["code"]' placeholder="Enter the JS command for the current loop item. The loop item is represented by arguments[0]. If the return value is greater than 0 or true, the operations within this branch will be executed; otherwise, they will not be executed. For example: return arguments[0].innerText.length > 5, which checks if the text length of the current loop item is greater than 5. Note that this is used in combination with element-related loop types (e.g., non-fixed element lists)."></textarea>
                         <label>Maximum wait time for script execution (0 represents unlimited wait time): </label>
                         <input spellcheck=false onkeydown="inputDelete(event)" required class="form-control" type="number" v-model.number='nowNode["parameters"]["waitTime"]'></input>
@@ -680,8 +686,7 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
                 </div>
                 <div style="margin-top:5px">
                     <label>Wait for the following elements to appear <b>before</b> executing:</label>
-                    <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" style="min-height: 30px" v-model='list.nl[index.nowNodeIndex]["parameters"]["waitElement"]'
-                              placeholder="Enter the XPath of the element to wait for, leave blank to skip waiting"></textarea>
+                    <textarea spellcheck=false onkeydown="inputDelete(event)" class="form-control" style="min-height: 30px" v-model='list.nl[index.nowNodeIndex]["parameters"]["waitElement"]' placeholder="Enter the XPath of the element to wait for, leave blank to skip waiting"></textarea>
                     <label style="margin-top:5px">In which iframe is the element located? Set to 0 if the element is not inside an iframe:</label>
                     <input spellcheck=false onkeydown="inputDelete(event)" class="form-control" v-model.number="list.nl[index.nowNodeIndex]['parameters']['waitElementIframeIndex']" type="number" required></input>
                     <label style="margin-top:5px">Maximum waiting time for element appearance (in seconds):</label>
@@ -696,7 +701,7 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
                         </select>
                     </div>
                 </div>
-<!--                <button class="btn btn-outline-primary" style="margin-top: 20px;" id="confirm">Confirm</button>-->
+                <!--                <button class="btn btn-outline-primary" style="margin-top: 20px;" id="confirm">Confirm</button>-->
 
             </div>
 
@@ -736,11 +741,11 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
                         <option value="2">Overwrite (If the file exists, overwrite it)</option>
                         <option value=3>Rename on Write (renames file if it already exists)</option>
                     </select>
-<!--                    <label>Is it an extreme anti-scraping website like Cloudflare (<a href="https://www.bilibili.com/video/BV1Ph4y1E7R9/" target="_blank">Watch Tutorial</a>)?</label>-->
-<!--                    <select id="cloudflare" name="cloudflare" class="form-control">-->
-<!--                        <option value=0>No</option>-->
-<!--                        <option value=1>Yes (Only support on Windows x64 platform)</option>-->
-<!--                    </select>-->
+                    <!--                    <label>Is it an extreme anti-scraping website like Cloudflare (<a href="https://www.bilibili.com/video/BV1Ph4y1E7R9/" target="_blank">Watch Tutorial</a>)?</label>-->
+                    <!--                    <select id="cloudflare" name="cloudflare" class="form-control">-->
+                    <!--                        <option value=0>No</option>-->
+                    <!--                        <option value=1>Yes (Only support on Windows x64 platform)</option>-->
+                    <!--                    </select>-->
                     <label>Remove duplicates after execution (note that this function will be executed at the end of the task, and leaving the task midway will not perform deduplication):</label>
                     <select id="removeDuplicate" name="removeDuplicate" class="form-control">
                         <option value="0">No</option>
@@ -791,9 +796,9 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
 
 </body>
 
-<script src="FlowChart.js"></script>
-<script src="global.js"></script>
-<script src="logic.js"></script>
+<script src="js/FlowChart.js"></script>
+<script src="js/global.js"></script>
+<script src="js/logic.js"></script>
 
 <script>
     var navigator = new Vue({
@@ -802,27 +807,27 @@ If the expression returns a value greater than 0 or evaluates to True, the opera
             type: getUrlParam("type"),
             backEndAddressServiceWrapper: getUrlParam("backEndAddressServiceWrapper"),
         },
-        methods:{
-            gotoHome: function () {
+        methods: {
+            gotoHome: function() {
                 let url = "";
                 if (getUrlParam("lang") == "zh") {
-                    url = "taskList.html?lang=zh&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskList.html?lang=zh&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 } else {
-                    url = "taskList.html?lang=en&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskList.html?lang=en&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 }
                 window.location.href = url;
-            }, gotoInfo: function () {
+            },
+            gotoInfo: function() {
                 let url = "";
                 if (getUrlParam("lang") == "zh") {
-                    url = "taskInfo.html?id="+getUrlParam("id")+"&lang=zh&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskInfo.html?id=" + getUrlParam("id") + "&lang=zh&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 } else {
-                    url = "taskInfo.html?id="+getUrlParam("id")+"&lang=en&type="+getUrlParam("type")+"&wsport="+getUrlParam("wsport")+"&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
+                    url = "taskInfo.html?id=" + getUrlParam("id") + "&lang=en&type=" + getUrlParam("type") + "&wsport=" + getUrlParam("wsport") + "&backEndAddressServiceWrapper=" + this.backEndAddressServiceWrapper
                 }
                 window.location.href = url;
             }
         }
     });
-
 </script>
 
 </html>

@@ -19,7 +19,7 @@
         "tutorial",
         "demo"
     ],
-    "author": "Naibo Wang",
+    "author": "dengbuliduo",
     "license": "AGPL-3.0",
     "devDependencies": {
         "@electron-forge/cli": "^6.0.5",
@@ -29,7 +29,7 @@
         "@electron-forge/maker-zip": "^6.0.5",
         "electron": "^20.0.1"
     },
-    "repository": "https://github.com/NaiboWang/ReliableSpider",
+    "repository": "https://github.com/dengbuliduo/ReliableSpider",
     "dependencies": {
         "cors": "^2.8.5",
         "electron-squirrel-startup": "^1.0.0",
@@ -70,12 +70,7 @@
                 "appVersion": "0.6.0",
                 "name": "ReliableSpider",
                 "executableName": "ReliableSpider",
-                "appCopyright": "Naibo Wang (naibowang@foxmail.com)",
-                "win32metadata": {
-                    "ProductName": "ReliableSpider",
-                    "CompanyName": "王乃博 (浙江大学与新加坡国立大学)",
-                    "FileDescription": "ReliableSpider"
-                }
+                "appCopyright": "dengbuliduo"
             },
             "publishers": []
         }

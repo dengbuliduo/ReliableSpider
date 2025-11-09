@@ -63,24 +63,22 @@ function detectLang(str) {
     return 0;
 }
 
-Vue.filter('lang', function (value) {
-    let value1 = value.split("~")[0];
-    let value2 = value.split("~")[1];
-    let value_zh = "";
-    let value_en = "";
-    if (detectLang(value1) == 1) {
-        value_zh = value1;
-        value_en = value2;
+// Vue 3 不再支持 Vue.filter，旧的过滤器逻辑改为提供一个全局辅助函数
+// 如果其他旧模板仍调用过滤器式语法，我们提供一个兼容函数供 JS 直接调用。
+window.langFromCombined = function (value) {
+    if (!value) return value;
+    const parts = value.split("~");
+    const a = parts[0] || '';
+    const b = parts[1] || '';
+    let value_zh = '';
+    let value_en = '';
+    if (detectLang(a) == 1) {
+        value_zh = a; value_en = b;
     } else {
-        value_zh = value2;
-        value_en = value1;
+        value_zh = b; value_en = a;
     }
-    if (getUrlParam("lang") == "zh") {
-        return value_zh;
-    } else {
-        return value_en;
-    }
-})
+    return getUrlParam("lang") == "zh" ? value_zh : value_en;
+}
 
 function LANG(zh, en) {
     if (window.location.href.indexOf("_CN") != -1) {
