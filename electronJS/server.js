@@ -60,9 +60,9 @@ const DEFAULT_CONFIG = {
 const MYSQL_DEFAULT_CONFIG = {
     HOST: "localhost",
     PORT: 3306,
-    USERNAME: "your_username",
-    PASSWORD: "your_password",
-    DATABASE: "your_database"
+    USERNAME: "root",
+    PASSWORD: "123456",
+    DATABASE: "reliableSpider"
 };
 
 // 任务相关常量
