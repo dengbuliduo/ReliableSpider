@@ -1,0 +1,42 @@
+# 1122 逻辑一致性检查与修改记录
+
+检查日期：2025-11-22
+
+## 检查范围
+- main.js 消息类型处理：1/2/3/4/5/6/7、30、31
+- src/services/task.service.ts：handleTaskMessage、executeMainTask、handleOpenDevTools、handleGetCookies、handleToolboxMessage
+- src/services/websocket.service.ts：连接与任务消息路由
+
+## 结论
+- 大部分逻辑与 main.js 保持一致（消息传递、任务执行、Cookies 获取）。
+- 发现并修复了工具箱显示/隐藏（type=30/31）在 services 层未接管的问题。
+- 开发者工具打开（type=6）在新架构中为“消息通知”，与 main.js“直接打开窗口 devtools”存在实现差异，已记录并给出后续建议。
+
+## 本次修改
+1) 在 `src/services/task.service.ts` 的 `handleTaskMessage` 中增加：
+   - `case 30:` 调用 `handleToolboxMessage(task.message, true)`（显示工具箱）
+   - `case 31:` 调用 `handleToolboxMessage(task.message, false)`（隐藏工具箱）
+
+2) 保持与 main.js 一致的工具箱消息负载：
+   - 向浏览器发送 `{ type: 'showAllToolboxes' }` / `{ type: 'hideAllToolboxes' }`
+
+3) 确认以下逻辑一致性：
+   - type=3 消息传递：浏览器与流程图之间的管道转发与元素操作处理一致。
+   - type=5 任务执行：参数构造与外部执行触发一致，并向前端发送配置信息（`config_folder`、`reliablespider_location`）。
+   - type=7 获取 Cookies：通过 Selenium 获取并发送到流程图（`GetCookies`）。
+
+## 已知差异（保留）
+- type=6 打开开发者工具：
+  - main.js：直接调用 `flowchart_window.openDevTools()` 与 `invoke_window.openDevTools()`。
+  - services：通过 WebSocket 发送“打开 DevTools”的消息通知，未直接控制 BrowserWindow。
+  - 建议：在 `electron/main/index.ts` 增加 IPC 通道（如 `open-devtools`），由主进程统一打开窗口 DevTools；在 `TaskService.handleOpenDevTools` 中调用该 IPC，以与 main.js 完全一致。
+
+## 构建验证
+- 已执行 `npm run build`，Electron 主进程与渲染端均编译通过。
+- 渲染端存在非关键的体积警告，可后续通过 `manualChunks` 或动态导入优化。
+
+## 影响面
+- 仅新增对 30/31 类型消息的处理分支，不改变既有接口与类型。
+- 与 main.js 的工具箱控制逻辑保持一致，低风险。
+
+—— 完毕 ——

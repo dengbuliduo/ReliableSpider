@@ -1,0 +1,14 @@
+{
+  "host": "localhost",
+  "port": 3306,
+  "username": "root",
+  "password": "123456",
+  "database": "reliableSpider",
+  "charset": "utf8mb4",
+  "timezone": "+08:00",
+  "connectionLimit": 10,
+  "acquireTimeout": 60000,
+  "timeout": 60000,
+  "reconnect": true,
+  "multipleStatements": true
+}

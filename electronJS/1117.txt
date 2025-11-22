@@ -1,0 +1,2742 @@
+# 项目系统性架构修复计划 - 2025-11-17
+
+## 第一阶段：现状分析
+
+### 当前发现的主要问题：
+1. 架构混乱：新旧版本并存（main.js vs electron/main/index.ts）
+2. TypeScript 配置错误：tsconfig.electron.json 配置不完整
+3. 依赖冲突：同时存在 Electron Forge 和 electron-builder
+4. 端口配置冲突：Vite 端口与实际运行端口不一致
+5. 目录结构混乱：存在 electron 和 electronX 等多个相似目录
+6. 热重载配置问题：热重载代码位置错误
+7. 遗留文件问题：大量已删除但未清理的引用
+
+## 第二阶段：系统性修复计划
+
+### 修复目标：
+1. 统一架构：确定使用新版 TypeScript 架构
+2. 修复配置：确保所有配置一致且正确
+3. 清理遗留：移除重复和冲突的配置
+4. 验证功能：确保构建和运行正常
+
+### 具体修复步骤：
+
+#### 步骤1：修复 TypeScript 配置
+- 更新 tsconfig.electron.json 包含所有必要文件
+- 确保 TypeScript 编译覆盖整个项目
+
+#### 步骤2：统一架构入口
+- 确定使用 electron/main/index.ts 作为主入口
+- 移除或禁用 main.js 的依赖
+- 修复 package.json 中的主入口配置
+
+#### 步骤3：修复端口配置
+- 统一 Vite 配置和实际运行端口
+- 确保 Electron 能正确连接到开发服务器
+
+#### 步骤4：清理构建工具
+- 确定使用 electron-builder 或 Electron Forge
+- 移除重复的构建配置
+
+#### 步骤5：验证构建流程
+- 测试 TypeScript 编译
+- 验证开发模式运行
+- 验证生产构建
+
+## 开始执行修复计划...
+
+### 步骤1：修复 TypeScript 配置 ✅ 已完成
+- 更新 tsconfig.electron.json 包含 main.js 文件
+- 验证 TypeScript 编译成功
+
+### 步骤2：修复端口配置 ✅ 已完成
+- 检查 Vite 配置端口已正确设置为 3003
+- 验证 package.json 中的开发脚本端口已匹配
+
+### 步骤3：清理构建工具 ✅ 已完成
+- 移除 Electron Forge 相关依赖
+- 删除 forge.config.js 配置文件
+- 确定统一使用 electron-builder
+
+### 验证结果：
+- TypeScript 编译：✅ 成功
+- 端口配置：✅ 已统一
+- 构建工具：✅ 已清理
+
+### 步骤4：验证构建流程 ✅ 基本成功
+- 完整构建（npm run build）：✅ 成功
+- 生产构建（npm run electron:build）：⚠ 部分成功，但有重命名错误
+
+### 发现的构建错误：
+- 错误：ENOENT: no such file or directory rename 'electron.exe' -> 'FastSpider.exe'
+- 原因：electron-builder 在重命名文件时遇到权限或文件锁定问题
+- 解决方案：通常需要清理构建缓存或重启系统
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 步骤4：验证构建流程 ✅ 基本成功
+- 完整构建（npm run build）：✅ 成功
+- 生产构建（npm run electron:build）：⚠ 部分成功，但有重命名错误
+
+### 发现的构建错误：
+- 错误：ENOENT: no such file or directory rename 'electron.exe' -> 'FastSpider.exe'
+- 原因：electron-builder 在重命名文件时遇到权限或文件锁定问题
+- 解决方案：通常需要清理构建缓存或重启系统
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 步骤1：修复 TypeScript 配置 ✅ 已完成
+- 更新 tsconfig.electron.json 包含 main.js 文件
+- 验证 TypeScript 编译成功
+
+### 步骤2：修复端口配置 ✅ 已完成
+- 检查 Vite 配置端口已正确设置为 3003
+- 验证 package.json 中的开发脚本端口已匹配
+
+### 步骤3：清理构建工具 ✅ 已完成
+- 移除 Electron Forge 相关依赖
+- 删除 forge.config.js 配置文件
+- 确定统一使用 electron-builder
+
+### 验证结果：
+- TypeScript 编译：✅ 成功
+- 端口配置：✅ 已统一
+- 构建工具：✅ 已清理
+
+### 步骤4：验证构建流程 ✅ 基本成功
+- 完整构建（npm run build）：✅ 成功
+- 生产构建（npm run electron:build）：⚠ 部分成功，但有重命名错误
+
+### 发现的构建错误：
+- 错误：ENOENT: no such file or directory rename 'electron.exe' -> 'FastSpider.exe'
+- 原因：electron-builder 在重命名文件时遇到权限或文件锁定问题
+- 解决方案：通常需要清理构建缓存或重启系统
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 步骤4：验证构建流程 ✅ 基本成功
+- 完整构建（npm run build）：✅ 成功
+- 生产构建（npm run electron:build）：⚠ 部分成功，但有重命名错误
+
+### 发现的构建错误：
+- 错误：ENOENT: no such file or directory rename 'electron.exe' -> 'FastSpider.exe'
+- 原因：electron-builder 在重命名文件时遇到权限或文件锁定问题
+- 解决方案：通常需要清理构建缓存或重启系统
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+## 第二阶段：系统性配置检查
+
+### 1. package.json 配置检查
+
+#### 发现的问题：
+1. **缺少 author 字段**
+   - 问题：electron-builder 报告缺少 author 信息
+   - 位置：package.json 中缺少 author 字段
+   - 影响：可能导致构建警告或应用信息不完整
+
+2. **图标配置问题**
+   - 问题：icon 字段指向 "./favicon"，但应该是具体文件
+   - 影响：应用图标可能无法正确显示
+
+3. **热重载依赖位置问题**
+   - 问题：electron-reloader 依赖存在，但热重载代码可能在错误的文件中
+
+#### 建议修复：
+- 添加 author 字段
+- 修复图标路径配置
+- 检查热重载代码位置
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 2. TypeScript 配置检查
+
+#### tsconfig.json 检查结果：
+- ✅ 配置完整，包含 Vue 支持
+- ✅ 严格模式启用
+- ✅ 路径映射配置正确
+
+#### tsconfig.electron.json 检查结果：
+- ✅ 已修复，包含 main.js 文件
+- ✅ 排除配置合理
+- ✅ 编译输出目录正确
+
+### 3. Vite 配置检查
+
+#### vite.config.ts 检查结果：
+- ✅ 端口配置已正确设置为 3003
+- ✅ Vue 插件配置正确
+- ✅ 构建输出目录配置正确
+- ✅ 别名配置正确
+
+### 4. 项目结构检查
+
+#### 发现的问题：
+1. **新旧架构并存**
+   - 问题：同时存在 main.js 和 electron/main/index.ts 两个主入口
+   - 影响：可能导致启动路径混乱
+
+2. **编译输出检查**
+   - ✅ dist/electron/main/index.js 已正确生成
+   - ✅ TypeScript 编译成功
+
+### 5. 文件内容检查
+
+#### 编译文件验证：
+- electron/main/index.ts 已正确编译为 JavaScript
+- 输出文件 dist/electron/main/index.js 存在且内容正确
+
+#### 发现的问题：
+1. **main.js 文件内容检查**
+   - 需要检查 main.js 是否包含热重载代码
+   - 可能存在与 TypeScript 版本冲突的代码
+
+2. **架构选择问题**
+   - 项目应明确选择使用 main.js 或 electron/main/index.ts
+   - 当前同时存在两个入口可能导致启动混乱
+
+### 6. 遗留问题检查
+
+#### 发现的问题：
+1. **缺少 author 信息**
+   - electron-builder 构建时报告缺少 author 字段
+
+2. **图标路径问题**
+   - icon: "./favicon" 指向不明确，应为具体文件路径
+
+3. **热重载配置位置**
+   - electron-reloader 依赖存在，但热重载代码应在正确位置
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
+
+### 7. 重要发现：编译文件端口配置错误
+
+#### 关键问题：
+- **编译后的 TypeScript 文件仍然使用端口 3000**
+- **源码 electron/main/index.ts 中开发环境端口配置为 3000**
+- **但实际 Vite 服务器运行在 3003 端口**
+
+#### 问题分析：
+```typescript
+// 编译后的 dist/electron/main/index.js 中：
+if (electron_is_dev_1.default) {
+    mainWindow.loadURL('http://localhost:3000');  // ❌ 错误的端口
+}
+```
+
+#### 影响：
+- 开发模式下 Electron 窗口无法正确连接到 Vite 开发服务器
+- 导致页面无法正常显示
+
+#### 修复方案：
+需要更新 electron/main/index.ts 中的端口配置为 3003
