@@ -12,6 +12,7 @@
         "build:electron": "tsc --project tsconfig.electron.json",
         "preview": "vite preview",
         "start": "electron .",
+        "express:dev": "node scripts/start-express.js",
         "electron:dev": "concurrently \"npm run dev\" \"powershell -Command wait-on http://localhost:3003; npm run start\"",
         "electron:build": "npm run build && electron-builder",
         "type-check": "vue-tsc --noEmit",
